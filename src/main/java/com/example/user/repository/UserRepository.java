@@ -1,13 +1,9 @@
 package com.example.user.repository;
 
-import com.example.dto.UserDTO;
+import com.example.user.domain.User;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.List;
+public interface UserRepository extends MongoRepository<User, String> {
 
-public interface UserRepository {
-    UserDTO createUser(UserDTO userDTO);
-    UserDTO updateUser(UserDTO userDTO);
-    UserDTO getUserById(String id);
-    List<UserDTO> getAllUsers();
-    void deleteUser(String id);
+    User findByEmail(String email);
 }
