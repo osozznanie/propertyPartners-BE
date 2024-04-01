@@ -1,21 +1,16 @@
-package com.example.projects.domain;
+package com.example.projects.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.example.projects.domain.About;
+import com.example.projects.domain.Description;
+import com.example.projects.domain.FloorPlan;
+import com.example.projects.domain.Location;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.List;
 import java.util.Map;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
-@Builder
-@Document(value = "projects")
-public class Project {
+public class ProjectDto {
     private String id;
     private String name;
     private String completion;
@@ -25,7 +20,6 @@ public class Project {
     private Double sizeM2;
     private String location;
 
-    @Field("short_description")
     private Description shortDescription;
     private List<Object> pictures;
     private Location coordinates;
