@@ -1,4 +1,4 @@
-# Property-Partners Admin Panel Backend
+#Property-Partners Admin Panel Backend
 
 This is the backend for the `Property-Partners Admin Panel`. It is a Java application developed using Spring Boot and Maven. The application is designed to manage real estate properties for a project based in Dubai. It provides a RESTful API for creating, updating, retrieving, and deleting property listings.
 
