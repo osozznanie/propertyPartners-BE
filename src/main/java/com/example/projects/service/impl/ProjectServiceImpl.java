@@ -1,5 +1,6 @@
 package com.example.projects.service.impl;
 
+import com.example.exception.EntityNotFoundException;
 import com.example.projects.domain.FloorPlan;
 import com.example.projects.domain.Plan;
 import com.example.projects.domain.PlanInfo;
@@ -12,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -51,7 +51,7 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectDto updateProject(String id, ProjectDto projectDto) {
         Project projectForUpdate = projectRepository.findById(id)
                 .orElseThrow(
-                        () -> new IllegalArgumentException("No project is found by id = " + id)
+                        () -> new EntityNotFoundException("No project is found by id = " + id)
                 );
 
         projectMapper.updateEntityFromDto(projectForUpdate, projectDto);
