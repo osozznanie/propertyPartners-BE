@@ -3,11 +3,13 @@ package com.example.projects.mapper;
 import com.example.projects.domain.Project;
 import com.example.projects.dto.ProjectDto;
 import lombok.Data;
+import org.springframework.stereotype.Component;
 
 @Data
+@Component
 public class ProjectMapper {
 
-    public static ProjectDto toDto(Project project) {
+    public ProjectDto toDto(Project project) {
         ProjectDto projectDto = new ProjectDto();
         projectDto.setId(project.getId());
         projectDto.setName(project.getName());
@@ -28,7 +30,7 @@ public class ProjectMapper {
         return projectDto;
     }
 
-    public static Project toEntity(ProjectDto projectDto) {
+    public Project toEntity(ProjectDto projectDto) {
         Project project = new Project();
         project.setId(projectDto.getId());
         project.setName(projectDto.getName());
@@ -47,5 +49,23 @@ public class ProjectMapper {
         project.setFloorPlans(projectDto.getFloorPlans());
 
         return project;
+    }
+
+    public void updateEntityFromDto(Project project,ProjectDto projectDto){
+        project.setId(projectDto.getId());
+        project.setName(projectDto.getName());
+        project.setCompletion(projectDto.getCompletion());
+        project.setSize(projectDto.getSize());
+        project.setHidden(projectDto.getHidden());
+        project.setPrice(projectDto.getPrice());
+        project.setSizeM2(projectDto.getSizeM2());
+        project.setLocation(projectDto.getLocation());
+        project.setShortDescription(projectDto.getShortDescription());
+        project.setPictures(projectDto.getPictures());
+        project.setCoordinates(projectDto.getCoordinates());
+        project.setArea(projectDto.getArea());
+        project.setAbout(projectDto.getAbout());
+        project.setAmenities(projectDto.getAmenities());
+        project.setFloorPlans(projectDto.getFloorPlans());
     }
 }

@@ -15,5 +15,5 @@ public interface ProjectService {
 
     void deleteProject(String id);
 
-    List<ProjectDto> getProjectsByFilter(String location, List<String> types, List<String> bedrooms, Double sizeFrom, Double sizeTo, Double priceFrom, Double priceTo, List<String> areas, List<String> completion);
+    List<ProjectDto> getProjectsByFilter(String location, List<String> bedrooms, Double sizeFrom, Double sizeTo, Double priceFrom, Double priceTo, List<String> areas, List<String> completion);
 }

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class PlanInfo {
-    private String room_name;
+    private String roomName;
     private String condition;
     private String type;
     private String name;
