@@ -30,7 +30,18 @@ public class Project {
     private List<Object> pictures;
     private Location coordinates;
     private String area;
-    private Map<String,About> about;
-    private List<String> amenities;
-    private Map<String,FloorPlan> floorPlans;
+    private Map<String, About> about;
+    private List<Amenities> amenities;
+    private Map<String, FloorPlan> floorPlans;
+    private boolean isTop;
+
+    private Information information;
+
+    public void toggleTop() {
+        this.isTop = !this.isTop;
+    }
+
+    public void toggleHidden() {
+        this.hidden = !this.hidden;
+    }
 }

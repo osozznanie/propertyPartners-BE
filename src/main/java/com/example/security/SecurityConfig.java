@@ -26,10 +26,12 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests((authz) -> authz
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/users/register").permitAll()
-                .requestMatchers("/api/users/login").permitAll()
-                .requestMatchers(HttpMethod.GET,"/api/amenities").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+//                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+//                .requestMatchers("/api/users/register").permitAll()
+//                .requestMatchers("/api/users/login").permitAll()
+//                .requestMatchers(HttpMethod.GET,"/api/amenities").permitAll()
+                        .requestMatchers("/api/**").permitAll()
                 .anyRequest().authenticated())
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(JwtTokenFilter, UsernamePasswordAuthenticationFilter.class)

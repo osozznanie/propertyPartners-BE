@@ -26,6 +26,8 @@ public class ProjectMapper {
         projectDto.setAbout(project.getAbout());
         projectDto.setAmenities(project.getAmenities());
         projectDto.setFloorPlans(project.getFloorPlans());
+        projectDto.setTop(project.isTop());
+        projectDto.setInformation(project.getInformation());
 
         return projectDto;
     }
@@ -47,6 +49,8 @@ public class ProjectMapper {
         project.setAbout(projectDto.getAbout());
         project.setAmenities(projectDto.getAmenities());
         project.setFloorPlans(projectDto.getFloorPlans());
+        project.setTop(projectDto.isTop());
+        project.setInformation(projectDto.getInformation());
 
         return project;
     }
@@ -67,5 +71,7 @@ public class ProjectMapper {
         project.setAbout(projectDto.getAbout());
         project.setAmenities(projectDto.getAmenities());
         project.setFloorPlans(projectDto.getFloorPlans());
+        project.setTop(projectDto.isTop());
+        project.setInformation(projectDto.getInformation());
     }
 }

@@ -1,9 +1,6 @@
 package com.example.projects.dto;
 
-import com.example.projects.domain.About;
-import com.example.projects.domain.Description;
-import com.example.projects.domain.FloorPlan;
-import com.example.projects.domain.Location;
+import com.example.projects.domain.*;
 import lombok.Data;
 
 import java.util.List;
@@ -25,6 +22,9 @@ public class ProjectDto {
     private Location coordinates;
     private String area;
     private Map<String,About> about;
-    private List<String> amenities;
+    private List<Amenities> amenities;
     private Map<String,FloorPlan> floorPlans;
+    private boolean isTop;
+
+    private Information information;
 }

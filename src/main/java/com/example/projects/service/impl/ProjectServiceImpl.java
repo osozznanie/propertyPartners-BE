@@ -1,36 +1,49 @@
 package com.example.projects.service.impl;
 
+import com.example.config.SpacesUploader;
 import com.example.exception.EntityNotFoundException;
 import com.example.projects.domain.FloorPlan;
 import com.example.projects.domain.Plan;
 import com.example.projects.domain.PlanInfo;
 import com.example.projects.domain.Project;
 import com.example.projects.dto.ProjectDto;
+import com.example.projects.dto.ProjectFilter;
 import com.example.projects.mapper.ProjectMapper;
 import com.example.projects.repository.ProjectRepository;
 import com.example.projects.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final ProjectMapper projectMapper;
+    private final SpacesUploader spacesUploader;
 
     @Autowired
-    public ProjectServiceImpl(ProjectRepository projectRepository, ProjectMapper projectMapper) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, ProjectMapper projectMapper, SpacesUploader spacesUploader) {
         this.projectRepository = projectRepository;
         this.projectMapper = projectMapper;
+        this.spacesUploader = spacesUploader;
     }
 
     @Override
-    public List<ProjectDto> getAllProjects() {
-        return projectRepository.findAll()
-                .stream()
-                .map(projectMapper::toDto)
-                .toList();
+    public List<ProjectDto> getAllProjects(ProjectFilter projectDto) {
+        return getProjectsByFilter(
+                projectDto.getLocation(),
+                projectDto.getBedrooms(),
+                projectDto.getSizeFrom(),
+                projectDto.getSizeTo(),
+                projectDto.getPriceFrom(),
+                projectDto.getPriceTo(),
+                projectDto.getAreas(),
+                projectDto.getCompletion()
+        );
     }
 
     @Override
@@ -44,6 +57,31 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ProjectDto createProject(ProjectDto projectDto) {
+        for (int i = 0; i < projectDto.getPictures().size(); i++) {
+            if (projectDto.getPictures().get(i) instanceof MultipartFile) {
+                String url = spacesUploader.uploadAndReturnUrl((MultipartFile) projectDto.getPictures().get(i));
+                projectDto.getPictures().remove(i);
+                projectDto.getPictures().add(i, url);
+            }
+        }
+
+        for (Map.Entry<String, FloorPlan> entry : projectDto.getFloorPlans().entrySet()) {
+
+            for (Plan plan : entry.getValue().getPlans()) {
+                if (plan.getImage() instanceof MultipartFile) {
+                    String url = spacesUploader.uploadAndReturnUrl((MultipartFile) plan.getImage());
+                    plan.setImage(url);
+                }
+            }
+        }
+
+        String urlQrCode = spacesUploader.uploadAndReturnUrl((MultipartFile) projectDto.getInformation().getQrCode());
+        projectDto.getInformation().setQrCode(urlQrCode);
+        projectDto.getInformation().setDateOfExpiration(new Date());
+
+        String fileUrl = spacesUploader.uploadAndReturnUrl((MultipartFile) projectDto.getInformation().getInsertFileHere());
+        projectDto.getInformation().setInsertFileHere(fileUrl);
+
         return projectMapper.toDto(projectRepository.save(projectMapper.toEntity(projectDto)));
     }
 
@@ -72,6 +110,25 @@ public class ProjectServiceImpl implements ProjectService {
                 .filter(project -> isProjectMatched(project, location, bedrooms, sizeFrom, sizeTo, priceFrom, priceTo, areas, completion))
                 .map(projectMapper::toDto)
                 .toList();
+    }
+
+    @Override
+    public ProjectDto makeProjectTop(String id) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Project with id " + id + " not found"));
+        project.toggleTop();
+        projectRepository.save(project);
+        return projectMapper.toDto(project);
+    }
+
+    @Override
+    public ProjectDto makeProjectHidden(String id) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Project with id " + id + " not found"));
+        project.toggleHidden();
+        projectRepository.save(project);
+        return projectMapper.toDto(project);
+
     }
 
     private boolean isProjectMatched(Project project, String location, List<String> bedrooms, Double sizeFrom, Double sizeTo, Double priceFrom, Double priceTo, List<String> areas, List<String> completion) {
