@@ -16,12 +16,16 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/projects")
 public class ProjectController {
+
     private final ProjectService projectService;
 
     @Operation(summary = "Create a new project")
     @PostMapping
-    public ResponseEntity<ProjectDto> createProject(@ModelAttribute ProjectDto projectDto) {
-        return ResponseEntity.ok(projectService.createProject(projectDto));
+    public ResponseEntity<ProjectDto> createProject(@ModelAttribute ProjectDto projectDto,
+                                                    @RequestPart(value = "amenitiesInString") String amenitiesJson,
+                                                    @RequestPart(value = "aboutInString") String aboutJson,
+                                                    @RequestPart(value = "floorPlanInString") String floorPlanJson) {
+        return ResponseEntity.ok(projectService.createProject(projectDto, amenitiesJson, aboutJson, floorPlanJson));
     }
 
     @Operation(summary = "Update an existing project")

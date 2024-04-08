@@ -73,8 +73,8 @@ public class ProPartApplication implements CommandLineRunner {
             projects.add(project);
         }
 
-        for (int i = 0; i < projects.size(); i++) {
-            projectRepository.createProject(projectMapper.toDto(projects.get(i)));
-        }
+//        for (int i = 0; i < projects.size(); i++) {
+//            projectRepository.createProject(projectMapper.toDto(projects.get(i), null));
+//        }
     }
 }

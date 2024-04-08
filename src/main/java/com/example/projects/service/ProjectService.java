@@ -10,7 +10,7 @@ public interface ProjectService {
 
     ProjectDto getProjectById(String id);
 
-    ProjectDto createProject(ProjectDto projectDto);
+    ProjectDto createProject(ProjectDto projectDto, String amenitiesJson, String aboutJson, String floorPlan);
 
     ProjectDto updateProject(String id, ProjectDto projectDto);
 
