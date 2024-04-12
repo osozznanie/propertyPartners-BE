@@ -182,6 +182,13 @@ public class ProjectServiceImpl implements ProjectService {
         return updateProject(projectId, projectDtoById);
     }
 
+    @Override
+    public FloorPlan getFloorPlanByFloorNumber(String projectId, String floorNumber) {
+        ProjectDto projectDtoById = getProjectById(projectId);
+
+        return projectDtoById.getFloorPlans().get(floorNumber);
+    }
+
     private void setRandomIfForFloorPlan(Plan floorPlan) {
         if (floorPlan.getId() == null) {
             floorPlan.setId(UUID.randomUUID().toString());

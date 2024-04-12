@@ -34,4 +34,6 @@ public interface ProjectService {
     ProjectDto addFloorPlanToProject(String projectId, Plan floorPlan, String numberOfFloorPlan);
 
     ProjectDto removePlanFromProject(String projectId, String planId);
+
+    FloorPlan getFloorPlanByFloorNumber(String projectId, String floorNumber);
 }

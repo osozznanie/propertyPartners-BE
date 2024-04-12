@@ -86,4 +86,16 @@ public class ProjectController {
             throw new IllegalArgumentException("Error parsing floor plan", e);
         }
     }
+
+    @Operation(summary = "Remove plan from project")
+    @DeleteMapping("/removePlan/{projectId}/{planId}")
+    public ResponseEntity<ProjectDto> removePlanFromProject(@PathVariable String projectId, @PathVariable String planId) {
+        return ResponseEntity.ok(projectService.removePlanFromProject(projectId, planId));
+    }
+
+    @Operation(summary = "Get floor plan by floor number")
+    @GetMapping("/floorPlan/{projectId}/{floorNumber}")
+    public ResponseEntity<FloorPlan> getFloorPlanByFloorNumber(@PathVariable String projectId, @PathVariable String floorNumber) {
+        return ResponseEntity.ok(projectService.getFloorPlanByFloorNumber(projectId, floorNumber));
+    }
 }
