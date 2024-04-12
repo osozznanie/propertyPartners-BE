@@ -4,20 +4,19 @@ import com.example.config.SpacesUploader;
 import com.example.exception.EntityNotFoundException;
 import com.example.projects.domain.FloorPlan;
 import com.example.projects.domain.Plan;
-import com.example.projects.domain.PlanInfo;
 import com.example.projects.domain.Project;
 import com.example.projects.dto.ProjectDto;
 import com.example.projects.dto.ProjectFilter;
 import com.example.projects.mapper.ProjectMapper;
 import com.example.projects.repository.ProjectRepository;
 import com.example.projects.service.ProjectService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -36,16 +35,19 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<ProjectDto> getAllProjects(ProjectFilter projectDto) {
-        return getProjectsByFilter(
-            projectDto.getLocation(),
-            projectDto.getBedrooms(),
+        return findByFilters(
+            projectDto.getName(),
+            projectDto.getTypes(),
+            projectDto.getRooms(),
             projectDto.getSizeFrom(),
             projectDto.getSizeTo(),
             projectDto.getPriceFrom(),
             projectDto.getPriceTo(),
-            projectDto.getAreas(),
-            projectDto.getCompletion()
-        );
+            projectDto.getAreas()
+        ).stream()
+            .map(projectMapper::toDto)
+            .toList(
+            );
     }
 
     @Override
@@ -55,56 +57,6 @@ public class ProjectServiceImpl implements ProjectService {
             .orElseThrow(
                 () -> new IllegalArgumentException("No project is found by id = " + id)
             );
-    }
-
-    @Override
-    public ProjectDto updateProject(String id, ProjectDto projectDto) {
-        Project projectForUpdate = projectRepository.findById(id)
-            .orElseThrow(
-                () -> new EntityNotFoundException("No project is found by id = " + id)
-            );
-
-        projectMapper.updateEntityFromDto(projectForUpdate, projectDto);
-
-        return projectMapper.toDto(projectRepository.save(projectForUpdate));
-    }
-
-    @Override
-    public void deleteProject(String id) {
-        projectRepository.deleteById(id);
-    }
-
-    @Override
-    public List<ProjectDto> getProjectsByFilter(String location, List<String> bedrooms, Double sizeFrom, Double sizeTo,
-                                                Double priceFrom, Double priceTo, List<String> areas,
-                                                List<String> completion) {
-        List<Project> projects = projectRepository.findAll();
-
-        return projects.stream()
-            .filter(
-                project -> isProjectMatched(project, location, bedrooms, sizeFrom, sizeTo, priceFrom, priceTo, areas,
-                    completion))
-            .map(projectMapper::toDto)
-            .toList();
-    }
-
-    @Override
-    public ProjectDto makeProjectTop(String id) {
-        Project project = projectRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Project with id " + id + " not found"));
-        project.toggleTop();
-        projectRepository.save(project);
-        return projectMapper.toDto(project);
-    }
-
-    @Override
-    public ProjectDto makeProjectHidden(String id) {
-        Project project = projectRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Project with id " + id + " not found"));
-        project.toggleHidden();
-        projectRepository.save(project);
-        return projectMapper.toDto(project);
-
     }
 
     @Override
@@ -144,32 +96,96 @@ public class ProjectServiceImpl implements ProjectService {
         projectDto.setFloorPlansFromStrings(floorPlan);
         projectDto.setAboutFromStrings(aboutJson);
 
+        if (projectDto.getFloorPlans() != null) {
+            projectDto.getFloorPlans().values().forEach(plan -> {
+                plan.getPlans().forEach(this::setRandomIfForFloorPlan);
+            });
+        }
+
         return projectMapper.toDto(projectRepository.save(projectMapper.toEntity(projectDto)));
     }
 
-    private boolean isProjectMatched(Project project, String location, List<String> bedrooms, Double sizeFrom,
-                                     Double sizeTo, Double priceFrom, Double priceTo, List<String> areas,
-                                     List<String> completion) {
-        for (FloorPlan floorPlan : project.getFloorPlans().values()) {
-            for (Plan plan : floorPlan.getPlans()) {
-                PlanInfo planInfo = plan.getPlanInfo();
-                if (planInfo != null) {
-                    List<Integer> convertedBedrooms =
-                        bedrooms != null ? bedrooms.stream().map(Integer::parseInt).toList() : null;
-                    if (convertedBedrooms != null && !convertedBedrooms.isEmpty() && !convertedBedrooms.contains(
-                        planInfo.getBedrooms())) {
-                        return false;
-                    }
-                }
-            }
-        }
+    @Override
+    public ProjectDto updateProject(String id, ProjectDto projectDto) {
+        Project projectForUpdate = projectRepository.findById(id)
+            .orElseThrow(
+                () -> new EntityNotFoundException("No project is found by id = " + id)
+            );
 
-        return (location == null || project.getLocation().equals(location))
-            && (sizeFrom == null || project.getSize() >= sizeFrom)
-            && (sizeTo == null || project.getSize() <= sizeTo)
-            && (priceFrom == null || project.getPrice() >= priceFrom)
-            && (priceTo == null || project.getPrice() <= priceTo)
-            && (areas == null || areas.contains(project.getArea()))
-            && (completion == null || completion.contains(project.getCompletion()));
+        projectMapper.updateEntityFromDto(projectForUpdate, projectDto);
+
+        return projectMapper.toDto(projectRepository.save(projectForUpdate));
     }
+
+    @Override
+    public void deleteProject(String id) {
+        projectRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Project> findByFilters(String name, List<String> types, List<Integer> rooms, Double sizeFrom,
+                                       Double sizeTo, Double priceFrom, Double priceTo, List<String> areas) {
+        return projectRepository.findByFilters(
+            name, types, rooms, sizeFrom, sizeTo, priceFrom, priceTo, areas);
+    }
+
+    @Override
+    public ProjectDto makeProjectTop(String id) {
+        Project project = projectRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Project with id " + id + " not found"));
+        project.toggleTop();
+        projectRepository.save(project);
+        return projectMapper.toDto(project);
+    }
+
+    @Override
+    public ProjectDto makeProjectHidden(String id) {
+        Project project = projectRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Project with id " + id + " not found"));
+        project.toggleHidden();
+        projectRepository.save(project);
+        return projectMapper.toDto(project);
+    }
+
+    @Override
+    public ProjectDto toggleHiddenInFloorPlanByProjectId(String id, String floorPlanId) {
+        ProjectDto projectDtoById = getProjectById(id);
+
+        Plan plan = projectDtoById.getFloorPlans().values().stream()
+            .flatMap(floorPlan -> floorPlan.getPlans().stream())
+            .filter(p -> p.getId().equals(floorPlanId))
+            .findFirst()
+            .orElseThrow(() -> new EntityNotFoundException("Plan with id " + floorPlanId + " not found"));
+
+        plan.toggleHidden();
+
+        return updateProject(id, projectDtoById);
+    }
+
+    @Override
+    public ProjectDto addFloorPlanToProject(String projectId, Plan floorPlan, String numberOfFloorPlan) {
+        ProjectDto projectDtoById = getProjectById(projectId);
+
+        projectDtoById.getFloorPlans().get(numberOfFloorPlan).getPlans().add(floorPlan);
+
+        return updateProject(projectId, projectDtoById);
+    }
+
+    @Override
+    public ProjectDto removePlanFromProject(String projectId, String planId) {
+        ProjectDto projectDtoById = getProjectById(projectId);
+
+        projectDtoById.getFloorPlans().values().forEach(floorPlan -> {
+            floorPlan.getPlans().removeIf(plan -> plan.getId().equals(planId));
+        });
+
+        return updateProject(projectId, projectDtoById);
+    }
+
+    private void setRandomIfForFloorPlan(Plan floorPlan) {
+        if (floorPlan.getId() == null) {
+            floorPlan.setId(UUID.randomUUID().toString());
+        }
+    }
+
 }

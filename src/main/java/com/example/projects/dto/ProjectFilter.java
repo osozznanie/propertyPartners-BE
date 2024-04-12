@@ -10,14 +10,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProjectFilter {
+    private String name;
     private List<String> types;
-    private List<String> bedrooms;
+    private List<Integer> rooms;
     private Double sizeFrom;
     private Double sizeTo;
     private Double priceFrom;
     private Double priceTo;
     private List<String> areas;
-
-    private String location;
-    private List<String> completion;
 }

@@ -50,7 +50,8 @@ public class ProjectDto {
     public void setFloorPlansFromStrings(String floorPlansJson) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            this.floorPlans = objectMapper.readValue(floorPlansJson, new TypeReference<Map<String, FloorPlan>>(){});
+            FloorPlan floorPlan = objectMapper.readValue(floorPlansJson, FloorPlan.class);
+            this.floorPlans = Map.of("1" ,floorPlan);
         } catch (IOException e) {
             log.error("Error parsing floor plans", e);
         }

@@ -1,8 +1,11 @@
 package com.example.projects.controller;
 
+import com.example.projects.domain.FloorPlan;
+import com.example.projects.domain.Plan;
 import com.example.projects.dto.ProjectDto;
 import com.example.projects.dto.ProjectFilter;
 import com.example.projects.service.ProjectService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -62,5 +65,25 @@ public class ProjectController {
     @GetMapping("/hidden/{id}")
     public ResponseEntity<ProjectDto> makeProjectHidden(@PathVariable String id) {
         return ResponseEntity.ok(projectService.makeProjectHidden(id));
+    }
+
+    @Operation(summary = "Toggle hidden in floor plan by project ID")
+    @GetMapping("/toggleHiddenInFloorPlan/{id}")
+    public ResponseEntity<ProjectDto> toggleHiddenInFloorPlanByProjectId(@PathVariable String id, @RequestParam String floorPlanId) {
+        return ResponseEntity.ok(projectService.toggleHiddenInFloorPlanByProjectId(id, floorPlanId));
+    }
+
+    @Operation(summary = "Add floor plan to project")
+    @PostMapping("/addFloorPlan/{projectId}")
+    public ResponseEntity<ProjectDto> addFloorPlanToProject(@PathVariable String projectId,
+                                                           @RequestPart(value = "floorPlan") String floorPlanJson,
+                                                           @RequestPart(value = "numberOfFloorPlan") String numberOfFloorPlan) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            Plan floorPlan = objectMapper.readValue(floorPlanJson, Plan.class);
+            return ResponseEntity.ok(projectService.addFloorPlanToProject(projectId, floorPlan, numberOfFloorPlan));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error parsing floor plan", e);
+        }
     }
 }
